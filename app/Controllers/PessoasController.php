@@ -206,4 +206,37 @@ class PessoasController
             echo json_encode(['erro' => 'Erro ao excluir pessoa.']);
         }
     }
+    public function inativar(): void
+{
+    header('Content-Type: application/json; charset=utf-8');
+
+    $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['erro' => 'ID inválido.']);
+        return;
+    }
+
+    try {
+        $sql = "UPDATE pessoas
+                SET status = 'inativo'
+                WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        echo json_encode([
+            'mensagem' => 'Pessoa inativada com sucesso.'
+        ], JSON_UNESCAPED_UNICODE);
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+
+        echo json_encode([
+            'erro' => 'Erro ao inativar pessoa.'
+        ]);
+    }
+}
 }
