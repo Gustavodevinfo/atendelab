@@ -114,73 +114,76 @@ switch ($controller) {
 
     case 'tiposAtendimentos':
 
-        exigirAutenticacao();
+    exigirAutenticacao();
 
-        $tiposController = new TiposAtendimentosController();
+    require_once __DIR__ . '/app/Controllers/TiposAtendimentosController.php';
+    $tiposController = new TiposAtendimentosController();
 
-        switch ($action) {
+    switch ($action) {
 
-            case 'listar':
-                $tiposController->listar();
-                break;
+        case 'listar':
+            $tiposController->listar();
+            break;
 
-            case 'buscarPorId':
-                $tiposController->buscarPorId();
-                break;
+        case 'buscarPorId':
+            $tiposController->buscarPorId();
+            break;
 
-            case 'criar':
-                $tiposController->criar();
-                break;
+        case 'criar':
+            $tiposController->criar();
+            break;
 
-            case 'atualizar':
-                $tiposController->atualizar();
-                break;
+        case 'atualizar':
+            $tiposController->atualizar();
+            break;
 
-            case 'excluir':
-                $tiposController->excluir();
-                break;
+        case 'excluir':
+            $tiposController->inativar();
+            break;
 
-            default:
-                http_response_code(404);
-                echo 'Acao de tipos de atendimentos nao encontrada.';
-        }
+        default:
+            responderRotaNaoEncontrada('Ação de tipos de atendimento não encontrada.');
+    }
 
-        break;
+    break;
 
     case 'atendimentos':
 
-        exigirAutenticacao();
+    exigirAutenticacao();
 
-        $atendimentosController = new AtendimentosController();
+    require_once __DIR__ . '/app/Controllers/AtendimentosController.php';
+    $atendimentosController = new AtendimentosController();
 
-        switch ($action) {
+    switch ($action) {
 
-            case 'listar':
-                $atendimentosController->listar();
-                break;
+        case 'listar':
+            $atendimentosController->listar();
+            break;
 
-            case 'buscarPorId':
-                $atendimentosController->buscarPorId();
-                break;
+        case 'visualizar':
+            $atendimentosController->visualizar();
+            break;
 
-            case 'criar':
-                $atendimentosController->criar();
-                break;
+        case 'criar':
+            $atendimentosController->criar();
+            break;
 
-            case 'atualizar':
-                $atendimentosController->atualizar();
-                break;
+        case 'alterarStatus':
+        case 'atualizarStatus':
+            $atendimentosController->atualizarStatus();
+            break;
 
-            case 'excluir':
-                $atendimentosController->excluir();
-                break;
+        case 'opcoesFormulario':
+            $atendimentosController->opcoesFormulario();
+            break;
 
-            default:
-                http_response_code(404);
-                echo 'Acao de atendimentos nao encontrada.';
-        }
+        default:
+            responderRotaNaoEncontrada(
+                'Ação de atendimentos não encontrada.'
+            );
+    }
 
-        break;
+    break;
 
     default:
         http_response_code(404);

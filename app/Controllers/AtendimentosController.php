@@ -10,6 +10,23 @@ class AtendimentosController
         $this->pdo = $pdo;
     }
 
+    private function usuarioResponsavel(): int
+    {
+        if (isset($_SESSION['usuario']['id'])) {
+            return (int) $_SESSION['usuario']['id'];
+        }
+
+        $usuarioId = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
+
+        if (!$usuarioId) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'usuario_id é obrigatório.']);
+            exit;
+        }
+
+        return $usuarioId;
+    }
+
     public function listar(): void
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -18,13 +35,10 @@ class AtendimentosController
                     a.id,
                     a.pessoa_id,
                     p.nome AS pessoa_nome,
-
                     a.tipo_atendimento_id,
                     t.nome AS tipo_atendimento_nome,
-
                     a.usuario_id,
                     u.nome AS usuario_nome,
-
                     a.descricao,
                     a.status,
                     a.data_atendimento,
@@ -32,18 +46,10 @@ class AtendimentosController
                     a.observacao_final,
                     a.criado_em,
                     a.atualizado_em
-
                 FROM atendimentos a
-
-                INNER JOIN pessoas p
-                    ON p.id = a.pessoa_id
-
-                INNER JOIN tipos_atendimentos t
-                    ON t.id = a.tipo_atendimento_id
-
-                INNER JOIN usuarios u
-                    ON u.id = a.usuario_id
-
+                INNER JOIN pessoas p ON p.id = a.pessoa_id
+                INNER JOIN tipos_atendimentos t ON t.id = a.tipo_atendimento_id
+                INNER JOIN usuarios u ON u.id = a.usuario_id
                 ORDER BY a.id DESC';
 
         $stmt = $this->pdo->query($sql);
@@ -69,22 +75,13 @@ class AtendimentosController
                     p.nome AS pessoa_nome,
                     t.nome AS tipo_atendimento_nome,
                     u.nome AS usuario_nome
-
                 FROM atendimentos a
-
-                INNER JOIN pessoas p
-                    ON p.id = a.pessoa_id
-
-                INNER JOIN tipos_atendimentos t
-                    ON t.id = a.tipo_atendimento_id
-
-                INNER JOIN usuarios u
-                    ON u.id = a.usuario_id
-
+                INNER JOIN pessoas p ON p.id = a.pessoa_id
+                INNER JOIN tipos_atendimentos t ON t.id = a.tipo_atendimento_id
+                INNER JOIN usuarios u ON u.id = a.usuario_id
                 WHERE a.id = :id';
 
         $stmt = $this->pdo->prepare($sql);
-
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -105,11 +102,10 @@ class AtendimentosController
 
         $pessoaId = filter_input(INPUT_POST, 'pessoa_id', FILTER_VALIDATE_INT);
         $tipoAtendimentoId = filter_input(INPUT_POST, 'tipo_atendimento_id', FILTER_VALIDATE_INT);
-        $usuarioId = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
+        $usuarioId = $this->usuarioResponsavel();
 
         $descricao = trim($_POST['descricao'] ?? '');
         $status = $_POST['status'] ?? 'aberto';
-
         $dataAtendimento = $_POST['data_atendimento'] ?? '';
         $horarioAtendimento = $_POST['horario_atendimento'] ?? '';
         $observacaoFinal = trim($_POST['observacao_final'] ?? '');
@@ -132,7 +128,6 @@ class AtendimentosController
         }
 
         try {
-
             $sql = 'INSERT INTO atendimentos
                     (
                         pessoa_id,
@@ -177,7 +172,6 @@ class AtendimentosController
             ], JSON_UNESCAPED_UNICODE);
 
         } catch (PDOException $e) {
-
             http_response_code(500);
 
             echo json_encode([
@@ -194,11 +188,10 @@ class AtendimentosController
 
         $pessoaId = filter_input(INPUT_POST, 'pessoa_id', FILTER_VALIDATE_INT);
         $tipoAtendimentoId = filter_input(INPUT_POST, 'tipo_atendimento_id', FILTER_VALIDATE_INT);
-        $usuarioId = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
+        $usuarioId = $this->usuarioResponsavel();
 
         $descricao = trim($_POST['descricao'] ?? '');
         $status = $_POST['status'] ?? 'aberto';
-
         $dataAtendimento = $_POST['data_atendimento'] ?? '';
         $horarioAtendimento = $_POST['horario_atendimento'] ?? '';
         $observacaoFinal = trim($_POST['observacao_final'] ?? '');
@@ -219,7 +212,6 @@ class AtendimentosController
         }
 
         try {
-
             $sql = 'UPDATE atendimentos
                     SET
                         pessoa_id = :pessoa_id,
@@ -251,7 +243,6 @@ class AtendimentosController
             ], JSON_UNESCAPED_UNICODE);
 
         } catch (PDOException $e) {
-
             http_response_code(500);
 
             echo json_encode([
@@ -273,7 +264,6 @@ class AtendimentosController
         }
 
         try {
-
             $sql = 'DELETE FROM atendimentos WHERE id = :id';
 
             $stmt = $this->pdo->prepare($sql);
@@ -285,7 +275,6 @@ class AtendimentosController
             ], JSON_UNESCAPED_UNICODE);
 
         } catch (PDOException $e) {
-
             http_response_code(500);
 
             echo json_encode([
